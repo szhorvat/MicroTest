@@ -51,6 +51,7 @@ logTestResult[asc_] :=
       ];
     ]
 
+
 SetAttributes[MTRun, HoldAllComplete]
 MTRun[expr_] :=
     Block[{MT, MTSection, $section = None, gs = generalStopQ[], result},
@@ -59,7 +60,10 @@ MTRun[expr_] :=
       MTSection[name_] := ($section = name; print[Darker@Blue][name]);
       MT[test_, expected_, messages_ : {}] :=
           Module[{res, msgres, msgexp, pass, msgpass},
-            {res, msgres} = catchMessages[test];
+            Quiet[
+              {res, msgres} = catchMessages[test],
+              messages
+            ];
             msgexp = Map[HoldForm, Unevaluated[messages]];
             pass = With[{e = expected}, res === HoldComplete[e]];
             msgpass = Complement[msgres, msgexp] === {};
@@ -73,7 +77,7 @@ MTRun[expr_] :=
               |>
             ]
           ];
-      MT[args_] := Print["Invalid MT argument in ", $section, ": ", HoldForm[args]];
+      MT[args___] := Print["Invalid MT arguments in ", $section, ": ", HoldForm[{args}]];
       result = expr;
       If[gs, On[General::stop]];
       result
