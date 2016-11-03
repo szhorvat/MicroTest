@@ -60,6 +60,11 @@ MTRun[expr_] :=
       MTSection[name_] := ($section = name; print[Darker@Blue][name]);
       MT[test_, expected_, messages_ : {}] :=
           Module[{res, msgres, msgexp, pass, msgpass},
+            (* TODO: Should have proper test error notification *)
+            If[Not@MatchQ[HoldComplete[messages], HoldComplete[{___MessageName}]],
+              print[Darker@Green][StringForm["`` is not a valid list of message names. Skipping test.", HoldForm[messages]]];
+              Return[Null]
+            ];
             Quiet[
               {res, msgres} = catchMessages[test],
               messages
