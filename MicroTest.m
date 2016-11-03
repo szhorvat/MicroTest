@@ -42,7 +42,7 @@ logPrint = print[Red];
 logTestResult[asc_] :=
     Module[{},
       If[asc@"Passed" && asc@"MsgPassed", Return[Null]];
-      If[asc@"Section" =!= None, logPrint["Section ", asc@"Section"]];
+      If[asc@"Section" =!= None, logPrint[Style["Section ", Bold], Style[asc@"Section", Bold]]];
       If[Not@asc@"Passed",
         logPrint["Failed: ", asc@"Test", "\nExpected: ", asc@"Expected", "\nGot: ", asc@"Got"];
       ];
