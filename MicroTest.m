@@ -66,7 +66,7 @@ MTRun[expr_] :=
             ];
             msgexp = Map[HoldForm, Unevaluated[messages]];
             pass = With[{e = expected}, res === HoldComplete[e]];
-            msgpass = Complement[msgres, msgexp] === {};
+            msgpass = Union[msgres] === Union[msgexp];
             logTestResult[
               <|
                 "Passed" -> pass, "MsgPassed" -> msgpass,
