@@ -51,14 +51,14 @@ logTestResult[asc_] :=
       ];
     ]
 
-
 SetAttributes[MTRun, HoldAllComplete]
 MTRun[expr_] :=
     Block[{MT, MTSection, $section = None, gs = generalStopQ[], result},
       Off[General::stop];
       SetAttributes[MT, HoldAllComplete];
       MTSection[name_] := ($section = name; print[Darker@Blue][name]);
-      MT[test_, expected_, messages_ : {}] :=
+      Options[MT] = {SameTest -> SameQ};
+      MT[test_, expected_, messages : {___} : {}, OptionsPattern[]] :=
           Module[{res, msgres, msgexp, pass, msgpass},
             (* TODO: Should have proper test error notification *)
             If[Not@MatchQ[HoldComplete[messages], HoldComplete[{___MessageName}]],
@@ -70,7 +70,7 @@ MTRun[expr_] :=
               messages
             ];
             msgexp = Map[HoldForm, Unevaluated[messages]];
-            pass = With[{e = expected}, res === HoldComplete[e]];
+            pass = With[{e = expected}, OptionValue[SameTest][First[res], e]];
             msgpass = Union[msgres] === Union[msgexp];
             logTestResult[
               <|
