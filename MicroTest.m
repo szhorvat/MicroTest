@@ -70,7 +70,7 @@ MTRun[expr_] :=
               messages
             ];
             msgexp = Map[HoldForm, Unevaluated[messages]];
-            pass = With[{e = expected}, OptionValue[SameTest][First[res], e]];
+            pass = TrueQ@With[{e = expected}, OptionValue[SameTest][First[res], e]];
             msgpass = Union[msgres] === Union[msgexp];
             logTestResult[
               <|
