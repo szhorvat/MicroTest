@@ -22,18 +22,19 @@ Begin["`Private`"]
 
 SetAttributes[MT, HoldAllComplete];
 
+(* Is General::stop turned off? *)
 generalStopQ[] := Head[General::stop] =!= $Off
 
 SetAttributes[catchMessages, HoldAllComplete]
 catchMessages[expr_] :=
-    Module[{sofar},
-      sofar = Length[$MessageList];
+    Module[{countSoFar},
+      countSoFar = Length[$MessageList];
       With[{result = expr},
-        {HoldComplete[result], Drop[$MessageList, sofar]}
+        {HoldComplete[result], Drop[$MessageList, countSoFar]}
       ]
     ]
 
-heldToString[HoldComplete[expr_]] := ToString@Unevaluated[expr]
+heldToString[HoldComplete[expr_]] := ToString[Unevaluated[expr], InputForm]
 
 print[style___][args___] := Print @@ (Style[#,style]& /@ {args})
 
