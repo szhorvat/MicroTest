@@ -52,9 +52,16 @@ logTestResult[asc_] :=
       ];
     ]
 
+(* TextGrid[] is not available before 10.3 and does not work in command line mode even in later versions. *)
+textGrid[arg_, opts___] := If[$Notebooks, Text, Identity]@Grid[arg, opts, Alignment -> Left]
+
 SetAttributes[MTRun, HoldAllComplete]
 MTRun[expr_] :=
-    Block[{MT, MTSection, $section = None, gs = generalStopQ[], result},
+    Block[
+      {
+        MT, MTSection, $section = None, gs = generalStopQ[], result,
+        totalCount = 0, passCount = 0, failCount = 0, msgFailCount = 0 (* test counters *)
+      },
       Off[General::stop];
       SetAttributes[MT, HoldAllComplete];
       MTSection[name_] := ($section = name; print[Darker@Blue][name]);
@@ -73,6 +80,12 @@ MTRun[expr_] :=
             msgexp = Map[HoldForm, Unevaluated[messages]];
             pass = TrueQ@With[{e = expected}, OptionValue[SameTest][First[res], e]];
             msgpass = Union[msgres] === Union[msgexp];
+
+            (* Count tests *)
+            If[pass && msgpass, passCount++, failCount++];
+            If[! msgpass, msgFailCount++];
+            totalCount++;
+
             logTestResult[
               <|
                 "Passed" -> pass, "MsgPassed" -> msgpass,
@@ -86,6 +99,15 @@ MTRun[expr_] :=
       MT[args___] := Print["Invalid MT arguments in ", $section, ": ", HoldForm[{args}]];
       result = expr;
       If[gs, On[General::stop]];
+
+      (* Print final report: *)
+      Print@textGrid[{
+        {"Tests run:", totalCount},
+        {"Passed:", passCount},
+        {"Failed: ", Style[failCount, If[failCount > 0, Red, Unevaluated@Sequence[]]]},
+        {"Messages: ", Style[msgFailCount, If[msgFailCount > 0, Darker@Yellow, Unevaluated@Sequence[]]]}
+      }, Frame -> True];
+
       result
     ]
 
